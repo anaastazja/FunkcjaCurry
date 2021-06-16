@@ -6,20 +6,27 @@ import numpy as np
 import sympy as sympy
 from sympy import *
 
-#globalne mu?
 def func(x):
     return eval(values["-WZOR-"])
 
-def funcCurry(fun, x):
+def funcKolo(fun, x):
     # TU WPISUJE 3 ROZNE FUNCJE KARY
     # KOLO (O SRODKU W PUNKCIE (2,3) i PROMIENIU 1)
     # f = log(-1*(x[0]-2)**2-1*(x[1]-3)**2+1)
     # KWADRAT (O SRODKU W PUNKCIE (2, 3) I BOKU DDLUGOSCI 2)
     # g = log(x[0]-1) + log(3-x[0]) + log(x[1]-4) + log(2-x[1])
-    # POLKOLE
-    # h = log(-0.5*(x[0]-2)-0.5*(x[1]-2)+2) + log(2-x[1])
+
     f = log(-1 * (x[0] - 2) ** 2 - 1 * (x[1] - 3) ** 2 + 1)
-    return fun - f
+    return fun - math.log(-1 * (x[0] - 2) ** 2 - 1 * (x[1] - 3) ** 2 + 1)
+
+def funcKwadrat(fun, x):
+    # KWADRAT (O SRODKU W PUNKCIE (2, 3) I BOKU DDLUGOSCI 2)
+    g = log(x[0]-1) + log(3-x[0]) + log(x[1]-4) + log(2-x[1])
+    return fun - g
+def funcPolkole(fun, x):
+    # POLKOLE
+    h = log(-0.5*(x[0]-2)-0.5*(x[1]-2)+2) + log(2-x[1])
+    return fun - h
 
 def funcWykres(x):
     return eval(values["-WZOR-"])
@@ -35,17 +42,13 @@ def stopDokladnosc(x0, x_new, i):
     return distance <= stop_value
 
 
-def stopIteracje(x0, x_new, i):
-    stop_value = float(values["-STOP-WARTOSC-"])
-    return i >= stop_value
-
 
 def getGrad(x0):
     f_variables = list(sympy.symbols(' '.join('x%d' % i for i in range(x0.size))))
     grad_fx = []
     subs = assign_values_in_point(f_variables, x0)
     for variable in f_variables:
-        grad_fx.append(diff(funcCurry(func, f_variables), variable).evalf(subs=subs))
+        grad_fx.append(diff(funcKolo(func, f_variables), variable).evalf(subs=subs))
     return grad_fx
 
 
@@ -92,7 +95,7 @@ def rysujWykres(punkty):
     plt.show()
 
 
-def program(x_start, warunek_stopu):
+def program(x_start):
     punkty = [x_start]
     h0 = np.eye(x_start.size)
     i = 0
@@ -129,10 +132,6 @@ def program(x_start, warunek_stopu):
 
 mu = 1.0
 
-#Tu jest ta pętla, po której ma być iterowany program, na razie na sztywno, jak nam zostanie czas, to wtedy można zrobić, ze sprawdzeniem, czy coś się zmienilo w tablicy
-#while mu > 0.01:
-#    program(x_start, stopDokladnosc(x0, x_new, i))
-#    mu = mu/1.5
 
 # Układ okna
 layout = [
@@ -140,10 +139,10 @@ layout = [
     [simpleGui.InputText("x[0]**2+cos(x[1])", key="-WZOR-")],
 
     [simpleGui.Text("Punkt początkowy (oddziel spacjami):")],
-    [simpleGui.InputText("9 8", key="-X0-", size=(5, 1))],
+    [simpleGui.InputText("1.5 2.5", key="-X0-", size=(5, 1))],
 
-    [simpleGui.Text("Kryterium stopu:")],
-    [simpleGui.Listbox(values=["Liczba iteracji", "Dokładność"], key="-STOP-", size=(20, 2))],
+    [simpleGui.Text("Obszar ograniczający:")],
+    [simpleGui.Listbox(values=["Koło", "Kwadrat"], key="-STOP-", size=(20, 2))],
     [simpleGui.InputText("9", key="-STOP-WARTOSC-", size=(5, 1))],
 
     [simpleGui.HSeparator()],
@@ -179,8 +178,10 @@ while True:
         wzor = values["-WZOR-"]
         x_start = values["-X0-"].split()
         x_start = [float(i) for i in x_start]
-        if values["-STOP-"][0] == "Liczba iteracji":
-            warunekStopu = stopIteracje
+        if values["-STOP-"][0] == "Koło":
+            warunekStopu = funcKolo
         else:
-            warunekStopu = stopDokladnosc
-        program(np.matrix(x_start, dtype=float), warunekStopu)
+            warunekStopu = funcKwadrat
+        while mu > 0.01:
+            program(np.matrix(x_start, dtype=float))
+            mu = mu / 1.5
