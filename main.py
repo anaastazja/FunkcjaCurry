@@ -7,26 +7,17 @@ import sympy as sympy
 from sympy import *
 
 def func(x):
-    return eval(values["-WZOR-"])
+    return eval(values["-WZOR-"])-eval(values["-STOP-WARTOSC-"])
 
-def funcKolo(fun, x):
-    # TU WPISUJE 3 ROZNE FUNCJE KARY
+def funcKolo(x):
     # KOLO (O SRODKU W PUNKCIE (2,3) i PROMIENIU 1)
-    # f = log(-1*(x[0]-2)**2-1*(x[1]-3)**2+1)
-    # KWADRAT (O SRODKU W PUNKCIE (2, 3) I BOKU DDLUGOSCI 2)
-    # g = log(x[0]-1) + log(3-x[0]) + log(x[1]-4) + log(2-x[1])
-
-    f = log(-1 * (x[0] - 2) ** 2 - 1 * (x[1] - 3) ** 2 + 1)
-    return fun - math.log(-1 * (x[0] - 2) ** 2 - 1 * (x[1] - 3) ** 2 + 1)
+    return math.log(-1 * (x[0] - 2) ** 2 - 1 * (x[1] - 3) ** 2 + 1)
 
 def funcKwadrat(fun, x):
     # KWADRAT (O SRODKU W PUNKCIE (2, 3) I BOKU DDLUGOSCI 2)
-    g = log(x[0]-1) + log(3-x[0]) + log(x[1]-4) + log(2-x[1])
-    return fun - g
-def funcPolkole(fun, x):
-    # POLKOLE
-    h = log(-0.5*(x[0]-2)-0.5*(x[1]-2)+2) + log(2-x[1])
-    return fun - h
+    return math.log(x[0]-1) + math.log(3-x[0]) + math.log(x[1]-4) + math.log(2-x[1])
+def funcPolkole(x):
+    return math.log(-0.5*(x[0]-2)-0.5*(x[1]-2)+2) + math.log(2-x[1])
 
 def funcWykres(x):
     return eval(values["-WZOR-"])
@@ -48,7 +39,7 @@ def getGrad(x0):
     grad_fx = []
     subs = assign_values_in_point(f_variables, x0)
     for variable in f_variables:
-        grad_fx.append(diff(funcKolo(func, f_variables), variable).evalf(subs=subs))
+        grad_fx.append(diff(func(f_variables), variable).evalf(subs=subs))
     return grad_fx
 
 
@@ -142,21 +133,21 @@ layout = [
     [simpleGui.InputText("1.5 2.5", key="-X0-", size=(5, 1))],
 
     [simpleGui.Text("Obszar ograniczający:")],
-    [simpleGui.Listbox(values=["Koło", "Kwadrat"], key="-STOP-", size=(20, 2))],
+    [simpleGui.Listbox(values=["Koło", "Półkole", "Kwadrat"], key="-STOP-", size=(20, 2))],
     [simpleGui.InputText("9", key="-STOP-WARTOSC-", size=(5, 1))],
 
     [simpleGui.HSeparator()],
     [simpleGui.Text("Zakresy wykresu dla funkcji 2 zmiennych:")],
 
     [simpleGui.Text("Wartości X:")],
-    [simpleGui.InputText("-10", key="-X1-", size=(5, 1))],
+    [simpleGui.InputText("0", key="-X1-", size=(5, 1))],
     [simpleGui.Text("do:")],
-    [simpleGui.InputText("10", key="-Y1-", size=(5, 1))],
+    [simpleGui.InputText("5", key="-Y1-", size=(5, 1))],
 
     [simpleGui.Text("Wartości Y:")],
-    [simpleGui.InputText("-10", key="-X2-", size=(5, 1))],
+    [simpleGui.InputText("0", key="-X2-", size=(5, 1))],
     [simpleGui.Text("do:")],
-    [simpleGui.InputText("10", key="-Y2-", size=(5, 1))],
+    [simpleGui.InputText("5", key="-Y2-", size=(5, 1))],
 
     [simpleGui.Text(key="-KOMUNIKAT-", size=(30, 1))],
     [simpleGui.Button("Szukaj minimum", key="-OK-")]
@@ -180,6 +171,8 @@ while True:
         x_start = [float(i) for i in x_start]
         if values["-STOP-"][0] == "Koło":
             warunekStopu = funcKolo
+        elif values["-STOP-"][1] == "Półkole":
+            warunekStopu = funcPolkole
         else:
             warunekStopu = funcKwadrat
         while mu > 0.01:
