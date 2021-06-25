@@ -6,8 +6,8 @@ import numpy as np
 import sympy as sympy
 from sympy import *
 
-def func(x, x_values, mu):
-    return eval(values["-WZOR-"])-funcPolkole(x_values)*mu
+def func(x, x_values, mu, funcOgraniczenia):
+    return eval(values["-WZOR-"])-funcOgraniczenia(x_values)*mu
 
 def funcKolo(x):
     # KOLO (O SRODKU W PUNKCIE (2,3) i PROMIENIU 1)
@@ -35,12 +35,12 @@ def stopDokladnosc(x0, x_new, i):
 
 
 
-def getGrad(x0, mu):
+def getGrad(x0, mu, funcOgraniczenia):
     f_variables = list(sympy.symbols(' '.join('x%d' % i for i in range(x0.size))))
     grad_fx = []
     subs = assign_values_in_point(f_variables, x0)
     for variable in f_variables:
-        grad_fx.append(diff(func(f_variables, [x0.item(0), x0.item(1)], mu), variable).evalf(subs=subs))
+        grad_fx.append(diff(func(f_variables, [x0.item(0), x0.item(1)], mu, funcOgraniczenia), variable).evalf(subs=subs))
     return grad_fx
 
 
@@ -87,7 +87,7 @@ def rysujWykres(punkty):
     plt.show()
 
 
-def program(x_start):
+def program(x_start, funcOgraniczenia):
     punkty = [x_start]
     h0 = np.eye(x_start.size)
     i = 0
@@ -99,7 +99,7 @@ def program(x_start):
         # pobierz punkt
         x0 = punkty[i]
         # obliczenie gradientu w punkcie
-        grad_f_x0 = getGrad(x0, mu)
+        grad_f_x0 = getGrad(x0, mu, funcOgraniczenia)
         # kierunek spadku
         d = np.multiply(learning_rate, np.dot(h0, grad_f_x0))
 
@@ -111,7 +111,7 @@ def program(x_start):
 
 
         # DFP
-        grad_f_x_new = getGrad(x_new, mu)
+        grad_f_x_new = getGrad(x_new, mu, funcOgraniczenia)
         q = np.subtract(grad_f_x_new, grad_f_x0)  # y
         p = np.subtract(x_new, x0)  # k
         h0 = h0 + p.reshape([x0.size, 1]) * p / np.dot(p, q) \
@@ -140,7 +140,7 @@ layout = [
     [simpleGui.InputText("1.5 2.5", key="-X0-", size=(5, 1))],
 
     [simpleGui.Text("Obszar ograniczający:")],
-    [simpleGui.Listbox(values=["Koło", "Półkole", "Kwadrat"], key="-STOP-", size=(20, 2))],
+    [simpleGui.Listbox(values=["Koło", "Półkole", "Kwadrat"], key="-STOP-", size=(20, 3))],
 
     [simpleGui.Text(key="-KOMUNIKAT-", size=(30, 1))],
     [simpleGui.Button("Szukaj minimum", key="-OK-")]
@@ -163,9 +163,9 @@ while True:
         x_start = values["-X0-"].split()
         x_start = [float(i) for i in x_start]
         if values["-STOP-"][0] == "Koło":
-            warunekStopu = funcKolo
-        elif values["-STOP-"][1] == "Półkole":
-            warunekStopu = funcPolkole
+            funcOgraniczenia = funcKolo
+        elif values["-STOP-"][0] == "Półkole":
+            funcOgraniczenia = funcPolkole
         else:
-            warunekStopu = funcKwadrat
-        program(np.matrix(x_start, dtype=float))
+            funcOgraniczenia = funcKwadrat
+        program(np.matrix(x_start, dtype=float), funcOgraniczenia)
