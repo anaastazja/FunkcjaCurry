@@ -134,7 +134,7 @@ def program(x_start, funcOgraniczenia):
 # Układ okna
 layout = [
     [simpleGui.Text("Funkcja:")],
-    [simpleGui.InputText("x[0]**2+cos(x[1])", key="-WZOR-")],
+    [simpleGui.InputText("(x[0]-2)**2+(x[1]-3)**2", key="-WZOR-")],
 
     [simpleGui.Text("Punkt początkowy (oddziel spacjami):")],
     [simpleGui.InputText("1.5 2.5", key="-X0-", size=(5, 1))],
