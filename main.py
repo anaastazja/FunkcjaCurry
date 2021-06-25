@@ -18,7 +18,7 @@ def funcKwadrat(x):
     return math.log(x[0] + 3) + math.log(7 - x[0]) + math.log(x[1] + 2) + math.log(8 - x[1])
 
 def funcPolkole(x):
-    return math.log(-0.5*(x[0]+2)**2-0.5*(x[1]+2)**2+100) + math.log(2+x[1], 10)
+    return math.log(-0.5*(x[0]-2)**2-0.5*(x[1]+1)**2+25) + math.log(1+x[1], 10)
 
 def funcWykres(x):
     return eval(values["-WZOR-"])
@@ -56,8 +56,8 @@ def rysujWykres(punkty):
     x_interval = (1, 1)
     y_interval = (1, 1)
 
-    x_points = np.linspace(0, 4, 100)
-    y_points = np.linspace(0, 4, 100)
+    x_points = np.linspace(-3, 7, 100)
+    y_points = np.linspace(-2, 8, 100)
     X, Y = np.meshgrid(x_points, y_points)
 
     func3d_vectorized = []
