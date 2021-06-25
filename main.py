@@ -6,12 +6,17 @@ import numpy as np
 import sympy as sympy
 from sympy import *
 
-def func(x):
-    return eval(values["-WZOR-"])-eval(values["-STOP-WARTOSC-"])
+mu = 1.0
+
+
+
+def func(x, x_values):
+    return eval(values["-WZOR-"])-funcKolo(x_values)*mu
 
 def funcKolo(x):
     # KOLO (O SRODKU W PUNKCIE (2,3) i PROMIENIU 1)
-    return math.log(-1 * (x[0] - 2) ** 2 - 1 * (x[1] - 3) ** 2 + 1)
+    print(-1 * (x[0] - 2) ** 2 - (x[1] - 3) ** 2 + 1)
+    return math.log(-1 * (x[0] - 2) ** 2 - (x[1] - 3) ** 2 + 1, 10)
 
 def funcKwadrat(fun, x):
     # KWADRAT (O SRODKU W PUNKCIE (2, 3) I BOKU DDLUGOSCI 2)
@@ -39,7 +44,7 @@ def getGrad(x0):
     grad_fx = []
     subs = assign_values_in_point(f_variables, x0)
     for variable in f_variables:
-        grad_fx.append(diff(func(f_variables), variable).evalf(subs=subs))
+        grad_fx.append(diff(func(f_variables, [x0.item(0), x0.item(1)]), variable).evalf(subs=subs))
     return grad_fx
 
 
@@ -52,8 +57,8 @@ def assign_values_in_point(f_variables, x0):
 
 def rysujWykres(punkty):
 
-    x_interval = (float(values["-X1-"]), float(values["-Y1-"]))
-    y_interval = (float(values["-X2-"]), float(values["-Y2-"]))
+    x_interval = (1, 1)
+    y_interval = (1, 1)
 
     x_points = np.linspace(x_interval[0], x_interval[1], 100)
     y_points = np.linspace(y_interval[0], y_interval[1], 100)
@@ -90,7 +95,7 @@ def program(x_start):
     punkty = [x_start]
     h0 = np.eye(x_start.size)
     i = 0
-    learning_rate = 0.1
+    learning_rate = 0.001
 
     while true:
         # pobierz punkt
@@ -121,8 +126,6 @@ def program(x_start):
     print('i: ')
     print(i)
 
-mu = 1.0
-
 
 # Układ okna
 layout = [
@@ -134,20 +137,6 @@ layout = [
 
     [simpleGui.Text("Obszar ograniczający:")],
     [simpleGui.Listbox(values=["Koło", "Półkole", "Kwadrat"], key="-STOP-", size=(20, 2))],
-    [simpleGui.InputText("9", key="-STOP-WARTOSC-", size=(5, 1))],
-
-    [simpleGui.HSeparator()],
-    [simpleGui.Text("Zakresy wykresu dla funkcji 2 zmiennych:")],
-
-    [simpleGui.Text("Wartości X:")],
-    [simpleGui.InputText("0", key="-X1-", size=(5, 1))],
-    [simpleGui.Text("do:")],
-    [simpleGui.InputText("5", key="-Y1-", size=(5, 1))],
-
-    [simpleGui.Text("Wartości Y:")],
-    [simpleGui.InputText("0", key="-X2-", size=(5, 1))],
-    [simpleGui.Text("do:")],
-    [simpleGui.InputText("5", key="-Y2-", size=(5, 1))],
 
     [simpleGui.Text(key="-KOMUNIKAT-", size=(30, 1))],
     [simpleGui.Button("Szukaj minimum", key="-OK-")]
