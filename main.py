@@ -6,23 +6,19 @@ import numpy as np
 import sympy as sympy
 from sympy import *
 
-mu = 1.0
-
-
-
-def func(x, x_values):
-    return eval(values["-WZOR-"])-funcKolo(x_values)*mu
+def func(x, x_values, mu):
+    return eval(values["-WZOR-"])-funcPolkole(x_values)*mu
 
 def funcKolo(x):
     # KOLO (O SRODKU W PUNKCIE (2,3) i PROMIENIU 1)
-    print(-1 * (x[0] - 2) ** 2 - (x[1] - 3) ** 2 + 1)
-    return math.log(-1 * (x[0] - 2) ** 2 - (x[1] - 3) ** 2 + 1, 10)
+    return math.log(-1 * (x[0] - 2) ** 2 - (x[1] - 3) ** 2 + 25, 10)
 
-def funcKwadrat(fun, x):
-    # KWADRAT (O SRODKU W PUNKCIE (2, 3) I BOKU DDLUGOSCI 2)
-    return math.log(x[0]-1) + math.log(3-x[0]) + math.log(x[1]-4) + math.log(2-x[1])
+def funcKwadrat(x):
+    # KWADRAT (O SRODKU W PUNKCIE (2, 3) I BOKU DDLUGOSCI 10)
+    return math.log(x[0] + 3) + math.log(7 - x[0]) + math.log(x[1] + 2) + math.log(8 - x[1])
+
 def funcPolkole(x):
-    return math.log(-0.5*(x[0]-2)-0.5*(x[1]-2)+2) + math.log(2-x[1])
+    return math.log(-0.5*(x[0]+2)**2-0.5*(x[1]+2)**2+100) + math.log(2+x[1], 10)
 
 def funcWykres(x):
     return eval(values["-WZOR-"])
@@ -34,17 +30,17 @@ def stopDokladnosc(x0, x_new, i):
 
     distance = math.sqrt(suma_roznic_do_kwadratu)
 
-    stop_value = 0.1
+    stop_value = 0.01
     return distance <= stop_value
 
 
 
-def getGrad(x0):
+def getGrad(x0, mu):
     f_variables = list(sympy.symbols(' '.join('x%d' % i for i in range(x0.size))))
     grad_fx = []
     subs = assign_values_in_point(f_variables, x0)
     for variable in f_variables:
-        grad_fx.append(diff(func(f_variables, [x0.item(0), x0.item(1)]), variable).evalf(subs=subs))
+        grad_fx.append(diff(func(f_variables, [x0.item(0), x0.item(1)], mu), variable).evalf(subs=subs))
     return grad_fx
 
 
@@ -60,8 +56,8 @@ def rysujWykres(punkty):
     x_interval = (1, 1)
     y_interval = (1, 1)
 
-    x_points = np.linspace(x_interval[0], x_interval[1], 100)
-    y_points = np.linspace(y_interval[0], y_interval[1], 100)
+    x_points = np.linspace(0, 4, 100)
+    y_points = np.linspace(0, 4, 100)
     X, Y = np.meshgrid(x_points, y_points)
 
     func3d_vectorized = []
@@ -95,13 +91,15 @@ def program(x_start):
     punkty = [x_start]
     h0 = np.eye(x_start.size)
     i = 0
-    learning_rate = 0.001
+    learning_rate = 0.2
+    mu = 1.0
+    work = True
 
-    while true:
+    while work:
         # pobierz punkt
         x0 = punkty[i]
         # obliczenie gradientu w punkcie
-        grad_f_x0 = getGrad(x0)
+        grad_f_x0 = getGrad(x0, mu)
         # kierunek spadku
         d = np.multiply(learning_rate, np.dot(h0, grad_f_x0))
 
@@ -109,12 +107,15 @@ def program(x_start):
         x_new = np.subtract(x0, d)
         punkty.append(x_new)
 
+        print("mu ", mu)
+
+
         # DFP
-        grad_f_x_new = getGrad(x_new)
+        grad_f_x_new = getGrad(x_new, mu)
         q = np.subtract(grad_f_x_new, grad_f_x0)  # y
         p = np.subtract(x_new, x0)  # k
         h0 = h0 + p.reshape([x0.size, 1]) * p / np.dot(p, q) \
-            - np.dot(h0, q).reshape([x0.size, 1]) * np.dot(q, h0) / np.dot(np.dot(q, h0), q)
+        - np.dot(h0, q).reshape([x0.size, 1]) * np.dot(q, h0) / np.dot(np.dot(q, h0), q)
 
         i += 1
 
@@ -122,9 +123,12 @@ def program(x_start):
             print(punkty)
             if x0.size == 2:
                 rysujWykres(punkty)
-            break
+                work = False
+
+        mu = mu / 1.5
     print('i: ')
     print(i)
+
 
 
 # Układ okna
@@ -164,6 +168,4 @@ while True:
             warunekStopu = funcPolkole
         else:
             warunekStopu = funcKwadrat
-        while mu > 0.01:
-            program(np.matrix(x_start, dtype=float))
-            mu = mu / 1.5
+        program(np.matrix(x_start, dtype=float))
