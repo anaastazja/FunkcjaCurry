@@ -4,6 +4,7 @@ import PySimpleGUI as simpleGui
 import matplotlib.pyplot as plt
 import numpy as np
 import sympy as sympy
+from matplotlib import patches
 from sympy import *
 
 def func(x, x_values, mu, funcOgraniczenia):
@@ -64,8 +65,7 @@ def rysujWykres(punkty):
         rectangle = plt.Rectangle((-3, -2), 10, 10, edgecolor='r', fill=None)
         plt.gca().add_patch(rectangle)
     if values["-STOP-"][0] == "Półkole":
-        points = [[-3, -1], [2, 4], [7, -1], [4.5, 2.5*math.sqrt(3)-1], [2.5*math.sqrt(3)+2, 1.5], [2.5*math.sqrt(2)+2, 2.5*math.sqrt(2)-1]]
-        semicircle = plt.Polygon(points, closed=None, fill=None, edgecolor='r')
+        semicircle = patches.Arc((2,1.5), 3, 5, angle=0.0, theta1=0.0, theta2=180.0)
         plt.gca().add_patch(semicircle)
 
     func3d_vectorized = []
