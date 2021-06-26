@@ -7,22 +7,29 @@ import sympy as sympy
 from matplotlib import patches
 from sympy import *
 
+
 def func(x, x_values, mu, funcOgraniczenia):
-    return eval(values["-WZOR-"])-funcOgraniczenia(x_values)*mu
+    return eval(values["-WZOR-"]) - funcOgraniczenia(x_values) * mu
+
 
 def funcKolo(x):
     # KOLO (O SRODKU W PUNKCIE (2,3) i PROMIENIU 1)
-    return math.log(-1 * (x[0] - 2) ** 2 - (x[1] - 3) ** 2 + 25, 10)
+    x_ = -1 * (x[0] - 2) ** 2 - (x[1] - 3) ** 2 + 25
+    return math.log(x_, 10)
+
 
 def funcKwadrat(x):
     # KWADRAT (O SRODKU W PUNKCIE (2, 3) I BOKU DDLUGOSCI 10)
     return math.log(x[0] + 3) + math.log(7 - x[0]) + math.log(x[1] + 2) + math.log(8 - x[1])
 
+
 def funcPolkole(x):
-    return math.log(-0.5*(x[0]-2)**2-0.5*(x[1]+1)**2+25) + math.log(1+x[1], 10)
+    return math.log(-0.5 * (x[0] - 2) ** 2 - 0.5 * (x[1] + 1) ** 2 + 25) + math.log(1 + x[1], 10)
+
 
 def funcWykres(x):
     return eval(values["-WZOR-"])
+
 
 def stopDokladnosc(x0, x_new, i):
     suma_roznic_do_kwadratu = 0
@@ -35,13 +42,13 @@ def stopDokladnosc(x0, x_new, i):
     return distance <= stop_value
 
 
-
 def getGrad(x0, mu, funcOgraniczenia):
     f_variables = list(sympy.symbols(' '.join('x%d' % i for i in range(x0.size))))
     grad_fx = []
     subs = assign_values_in_point(f_variables, x0)
     for variable in f_variables:
-        grad_fx.append(diff(func(f_variables, [x0.item(0), x0.item(1)], mu, funcOgraniczenia), variable).evalf(subs=subs))
+        grad_fx.append(
+            diff(func(f_variables, [x0.item(0), x0.item(1)], mu, funcOgraniczenia), variable).evalf(subs=subs))
     return grad_fx
 
 
@@ -54,8 +61,11 @@ def assign_values_in_point(f_variables, x0):
 
 def rysujWykres(punkty):
 
-    x_points = np.linspace(-5, 10, 100)
-    y_points = np.linspace(-5, 10, 100)
+    a = -7
+    b = 10
+
+    x_points = np.linspace(a, b, 100)
+    y_points = np.linspace(a, b, 100)
     X, Y = np.meshgrid(x_points, y_points)
 
     if values["-STOP-"][0] == "Koło":
@@ -65,7 +75,7 @@ def rysujWykres(punkty):
         rectangle = plt.Rectangle((-3, -2), 10, 10, edgecolor='r', fill=None)
         plt.gca().add_patch(rectangle)
     if values["-STOP-"][0] == "Półkole":
-        semicircle = patches.Arc((2,1.5), 3, 5, angle=0.0, theta1=0.0, theta2=180.0)
+        semicircle = patches.Arc((2, -1), 10, 10, angle=0.0, theta1=0.0, theta2=180.0)
         plt.gca().add_patch(semicircle)
 
     func3d_vectorized = []
@@ -106,36 +116,40 @@ def program(x_start, funcOgraniczenia):
         # pobierz punkt
         x0 = punkty[i]
         # obliczenie gradientu w punkcie
-        grad_f_x0 = getGrad(x0, mu, funcOgraniczenia)
-        # kierunek spadku
-        d = np.multiply(learning_rate, np.dot(h0, grad_f_x0))
+        try:
+            grad_f_x0 = getGrad(x0, mu, funcOgraniczenia)
+            # kierunek spadku
+            d = np.multiply(learning_rate, np.dot(h0, grad_f_x0))
 
-        # wyznacz kolejny punkt
-        x_new = np.subtract(x0, d)
-        punkty.append(x_new)
+            # wyznacz kolejny punkt
+            x_new = np.subtract(x0, d)
+            punkty.append(x_new)
 
-        print("mu ", mu)
+            print("mu ", mu)
 
+            # DFP
+            grad_f_x_new = getGrad(x_new, mu, funcOgraniczenia)
+            q = np.subtract(grad_f_x_new, grad_f_x0)  # y
+            p = np.subtract(x_new, x0)  # k
+            h0 = h0 + p.reshape([x0.size, 1]) * p / np.dot(p, q) \
+            - np.dot(h0, q).reshape([x0.size, 1]) * np.dot(q, h0) / np.dot(np.dot(q, h0), q)
 
-        # DFP
-        grad_f_x_new = getGrad(x_new, mu, funcOgraniczenia)
-        q = np.subtract(grad_f_x_new, grad_f_x0)  # y
-        p = np.subtract(x_new, x0)  # k
-        h0 = h0 + p.reshape([x0.size, 1]) * p / np.dot(p, q) \
-        - np.dot(h0, q).reshape([x0.size, 1]) * np.dot(q, h0) / np.dot(np.dot(q, h0), q)
+            i += 1
 
-        i += 1
-
-        if stopDokladnosc(x0, x_new, i):
-            print(punkty)
-            if x0.size == 2:
-                rysujWykres(punkty)
-                work = False
+            if stopDokladnosc(x0, x_new, i):
+                print(punkty)
+                if x0.size == 2:
+                    rysujWykres(punkty)
+                    work = False
+        except ValueError as e:
+            print(e)
+            window["-KOMUNIKAT-"].update('Sprawdź na wykresie czy punkt x0 na pewno znajduję się wewnątrz ograniczeń')
+            rysujWykres(punkty)
+            work = False
 
         mu = mu / 1.5
     print('i: ')
     print(i)
-
 
 
 # Układ okna
@@ -169,10 +183,13 @@ while True:
         wzor = values["-WZOR-"]
         x_start = values["-X0-"].split()
         x_start = [float(i) for i in x_start]
-        if values["-STOP-"][0] == "Koło":
-            funcOgraniczenia = funcKolo
-        elif values["-STOP-"][0] == "Półkole":
-            funcOgraniczenia = funcPolkole
-        else:
-            funcOgraniczenia = funcKwadrat
-        program(np.matrix(x_start, dtype=float), funcOgraniczenia)
+        try:
+            if values["-STOP-"][0] == "Koło":
+                funcOgraniczenia = funcKolo
+            elif values["-STOP-"][0] == "Półkole":
+                funcOgraniczenia = funcPolkole
+            else:
+                funcOgraniczenia = funcKwadrat
+            program(np.matrix(x_start, dtype=float), funcOgraniczenia)
+        except:
+            window["-KOMUNIKAT-"].update('Sprawdź wpisane dane')
