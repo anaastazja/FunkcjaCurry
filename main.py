@@ -75,8 +75,9 @@ def rysujWykres(punkty):
         rectangle = plt.Rectangle((-3, -2), 10, 10, edgecolor='r', fill=None)
         plt.gca().add_patch(rectangle)
     if values["-STOP-"][0] == "Półkole":
-        semicircle = patches.Arc((2, -1), 10, 10, angle=0.0, theta1=0.0, theta2=180.0)
+        semicircle = patches.Arc((2, -1), 10, 10, angle=0.0, theta1=0.0, theta2=180.0, color='r')
         plt.gca().add_patch(semicircle)
+        plt.hlines(y=-1, xmin=-3, xmax=7, color='r')
 
     func3d_vectorized = []
     for point_x in x_points:
