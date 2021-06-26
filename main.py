@@ -83,7 +83,6 @@ def rysujWykres(punkty):
     plt.text(x[0], y[0], "X0", c="grey")
     plt.title("f(x,y) = " + values["-WZOR-"])
     plt.savefig("Wykres.png")
-    plt.ginput(4)
     plt.show()
 
 
