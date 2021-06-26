@@ -53,12 +53,20 @@ def assign_values_in_point(f_variables, x0):
 
 def rysujWykres(punkty):
 
-    x_interval = (1, 1)
-    y_interval = (1, 1)
-
-    x_points = np.linspace(-3, 7, 100)
-    y_points = np.linspace(-2, 8, 100)
+    x_points = np.linspace(-5, 10, 100)
+    y_points = np.linspace(-5, 10, 100)
     X, Y = np.meshgrid(x_points, y_points)
+
+    if values["-STOP-"][0] == "Koło":
+        circle = plt.Circle((2, 3), 5, color="r", fill=False)
+        plt.gca().add_patch(circle)
+    if values["-STOP-"][0] == "Kwadrat":
+        rectangle = plt.Rectangle((-3, -2), 10, 10, edgecolor='r', fill=None)
+        plt.gca().add_patch(rectangle)
+    if values["-STOP-"][0] == "Półkole":
+        points = [[-3, -1], [2, 4], [7, -1], [4.5, 2.5*math.sqrt(3)-1], [2.5*math.sqrt(3)+2, 1.5], [2.5*math.sqrt(2)+2, 2.5*math.sqrt(2)-1]]
+        semicircle = plt.Polygon(points, closed=None, fill=None, edgecolor='r')
+        plt.gca().add_patch(semicircle)
 
     func3d_vectorized = []
     for point_x in x_points:
