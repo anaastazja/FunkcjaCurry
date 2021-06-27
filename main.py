@@ -24,7 +24,7 @@ def funcKwadrat(x):
 
 
 def funcPolkole(x):
-    return math.log(-0.5 * (x[0] - 2) ** 2 - 0.5 * (x[1] + 1) ** 2 + 25) + math.log(1 + x[1], 10)
+    return math.log(-1* (x[0] - 2) ** 2 -(x[1] + 1) ** 2 + 25) + math.log(1 + x[1], 10)
 
 
 def funcWykres(x):
